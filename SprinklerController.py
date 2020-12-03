@@ -26,6 +26,8 @@ sudo i2cdetect -y 1
 
 The 7 bit I2C address of all found devices will be shown (ignoring the R/W bit, so I2C address 0000 0110 is displayed as hex 03).
 '''
+from config import *
+from FlexPrint import fprint
 DEBUG = False
 
 from flask import Flask, redirect, url_for, render_template, request, session
@@ -117,10 +119,10 @@ if os.path.isfile(CONFIG_FILE):
             parameter = line.rstrip()
             if parameter == "ENABLE_WATCHDOG=1":
                 WATCH_DOG_ENABLE = True
-                print("Watch Dog Enabled")
+                fprint("Watch Dog Enabled")
     workingConfigFile.close()
 else:
-    print("Running without a config file")
+    fprint("Running without a config file")
 
 #WATCH_DOG_ENABLE       = False
 WATCH_DOG_PET_INTERVAL = 5 # Watch Dog Petting inteval (must be less than 15 seconds or system will reboot
@@ -235,7 +237,7 @@ def setRelays(mode):
             if zoneTable[zone]['on']:
                 relayList.append(zoneTable[zone]['relay'])
                 newRelayShadow.append(zone)
-        #print("Turning on Relays : ", relayList)
+        #fprint("Turning on Relays : ", relayList)
     currentDatetime = localDatetime()  # datetime.datetime.now()
     textDayOfWeek = currentDatetime.strftime("%A, %b %-d")
     currentTime = currentDatetime.time()
@@ -245,7 +247,7 @@ def setRelays(mode):
             relays.closeNOrelays(relayList)
             break
         except:
-            print(f"Failed attempt {_+1} to set relays")
+            fprint(f"Failed attempt {_+1} to set relays")
             time.sleep(0.25)
             repeat = True
         sendTextMessage(messageSubject="I2C Bus Failure", messageText=f"I2C Bus Failur at {textTime}", recipient=GORDONS_CELL)
@@ -283,7 +285,7 @@ def checkRelays():
             relays.checkState()
             break
         except:
-            print(f"Failed attempt {_} to set relays")
+            fprint(f"Failed attempt {_} to set relays")
             time.sleep(0.25)
             repeat = True
         sendTextMessage(messageSubject="I2C Bus Failure", messageText=f"I2C Bus Failure at {textTime}", recipient=GORDONS_CELL)
@@ -302,19 +304,20 @@ def sendEmail(subject, textFile, recipient):
         Nothing
     '''
     # generic email headers
-    msg = EmailMessage()
-    msg['Subject'] = subject
-    msg['From'] = SENDER_EMAIL
-    msg['To'] = recipient
+    if MESSAGING:
+        msg = EmailMessage()
+        msg['Subject'] = subject
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = recipient
 
-    with open(textFile) as fp:
-        msg.set_content(fp.read())
-    text = msg.as_string()
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(GMAIL_SMTP_SERVER, SSL_PORT, context=context) as server:
-        server.login(SENDER_EMAIL, PASSWORD)
-        server.sendmail(SENDER_EMAIL, recipient, text)
-    print("Email Sent")
+        with open(textFile) as fp:
+            msg.set_content(fp.read())
+        text = msg.as_string()
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(GMAIL_SMTP_SERVER, SSL_PORT, context=context) as server:
+            server.login(SENDER_EMAIL, PASSWORD)
+            server.sendmail(SENDER_EMAIL, recipient, text)
+        fprint("Email Sent")
 
 
 def sendTextMessage(messageSubject, messageText, recipient):
@@ -330,17 +333,18 @@ def sendTextMessage(messageSubject, messageText, recipient):
     Returns:
         Nothing
     '''
-    message = "From: %s\r\n" % SENDER_EMAIL \
-              + "To: %s\r\n" % recipient \
-              + "Subject: %s\r\n" % messageSubject \
-              + "\r\n" \
-              + messageText
+    if MESSAGING:
+        message = "From: %s\r\n" % SENDER_EMAIL \
+                + "To: %s\r\n" % recipient \
+                + "Subject: %s\r\n" % messageSubject \
+                + "\r\n" \
+                + messageText
 
-    context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(GMAIL_SMTP_SERVER, SSL_PORT, context=context) as server:
-        server.login(SENDER_EMAIL, PASSWORD)
-        server.sendmail(SENDER_EMAIL, recipient, message)
-    print("Message Sent")
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(GMAIL_SMTP_SERVER, SSL_PORT, context=context) as server:
+            server.login(SENDER_EMAIL, PASSWORD)
+            server.sendmail(SENDER_EMAIL, recipient, message)
+        fprint("Message Sent")
 
 
 def configureTimerLables():
@@ -439,7 +443,7 @@ def timers():
     if request.method == "POST":
         timerForm = request.form
         updateNVM = time.time()
-        print("timers upatedNVM : ", updateNVM)
+        fprint("timers upatedNVM : ", updateNVM)
         for day, abb in daysOfWeek: # checkboxes only return values when checked - so need to reset all checks to off
             for timer in range(len(timerTable)):
                 timerTable[timer][day] = ''
@@ -484,7 +488,7 @@ def settings():
     if request.method == "POST":
         settingForm = request.form
         updateNVM = time.time()
-        print(settingForm, file=sys.stdout)
+        fprint(settingForm, file=sys.stdout)
         for key in settingForm:
             if key == 'settingButton':
                 if settingForm[key] != 'save':
@@ -591,7 +595,7 @@ def loadState():
                 timerTable[timer]['Interval'] = min(wateringTimes, key=lambda wateringTime : abs(wateringTime - timerTable[timer]['Interval']))
 
     except:
-        print("config file not found, using defaults")
+        fprint("config file not found, using defaults")
 
 
 def localDatetime():
@@ -683,19 +687,19 @@ def timerThread():
         # Get date / time and convert into compatible units
         currentDatetime = localDatetime()# datetime.datetime.now()
 
-        #print(currentDatetime)
+        #fprint(currentDatetime)
         textDayOfWeek = currentDatetime.strftime("%A")
-        #print(textDayOfWeek)
+        #fprint(textDayOfWeek)
         currentTime = currentDatetime.time()
-        #print(currentTime)
+        #fprint(currentTime)
         textTime = currentTime.strftime("%-I:%M%p")
-        #print(textTime)
+        #fprint(textTime)
         timeInSeconds = localTime()# time.time()
-        #print("time in seconds: ", timeInSeconds)
+        #fprint("time in seconds: ", timeInSeconds)
 
         printEn = False
         if (keepAlive % 4000) == 0 and printEn:
-            print(textDayOfWeek, textTime, "  Q", pendingZones.qsize())
+            fprint(textDayOfWeek, textTime, "  Q", pendingZones.qsize())
         keepAlive += 1
 
         # find timer trigger events and add entries to the queue of zones to be enabled, where a queue entry may be a single zone or a collection of multi zones
@@ -715,7 +719,7 @@ def timerThread():
             else: #timerTable[timer]['Type'] == 'DoW'
                 if timerTable[timer]['startTime'] == textTime and timerTable[timer][textDayOfWeek] == 'checked' and (timeInSeconds - timerTable[timer]['lastTimeOn']) > 60 * 60 * 24 * 0.5:
                     timerTable[timer]['lastTimeOn'] = timeInSeconds
-                    print("Timer: ", timer, " Active")
+                    fprint("Timer: ", timer, " Active")
                     zoneList = []
                     for zone in range(len(zoneTable)):
                         if zoneTable[zone]['timer'] - 1 == timer and zoneTable[zone]['wateringTime'] != 0:
@@ -747,7 +751,7 @@ def timerThread():
             for zone, startTime in activeZones:
                 wateringTime = max(MIN_WATERING_TIME, 60 * zoneTable[zone]['wateringTime'] - DOG_WARNING_DURATION * zoneTable[zone]['detectCount'])
                 if wateringTime < 60 * zoneTable[zone]['wateringTime'] and previousWateringIdle:
-                    print(f"Zone {zoneTable[zone]['name']} adjusted watering time from {60 * zoneTable[zone]['wateringTime']}s to {wateringTime}s")
+                    fprint(f"Zone {zoneTable[zone]['name']} adjusted watering time from {60 * zoneTable[zone]['wateringTime']}s to {wateringTime}s")
                 if timeInSeconds > startTime + wateringTime:
                     zoneTable[zone]['on'] = False
                     zoneTable[zone]['detectCount'] = 0
@@ -773,11 +777,11 @@ def timerThread():
                 try:
                     os.remove(REPORT_FILE_NAME)
                 except:
-                    print("Error while deleting file ", REPORT_FILE_NAME)
-                print("Message Text: \r\n", message_text)
+                    fprint("Error while deleting file ", REPORT_FILE_NAME)
+                fprint("Message Text: \r\n", message_text)
                 #sendEmail("Weekly Watering Report", message_text, GORDONS_EMAIL)
             except:
-                print("Error e-mailing report file")
+                fprint("Error e-mailing report file")
 
     time.sleep(TIMER_SAMPLE_INTERVAL/FAKE_TIME_SCALE)
 
@@ -836,12 +840,12 @@ def jsonServer():
             json_server.listen()
             conn, addr = json_server.accept()
             with conn:
-                print('Connected by', addr)
+                fprint('Connected by', addr)
                 while True:
                     data = conn.recv(1024)
                     if data:
                         data_packets = [packet + b"}" for packet in data.split(b"}") if packet]
-                        print("Data Packets: ", data_packets)
+                        fprint("Data Packets: ", data_packets)
                         for index in range(len(data_packets)):
                             received = json.loads(data_packets[index])
                             if received["Type"] == "Dog Warning":
@@ -851,15 +855,15 @@ def jsonServer():
                                     runDogModeThread = Thread(target=runDogMode)
                                     runDogModeThread.start()
                                 except:
-                                    print("Error: unable to start Run Dog Mode thread")
+                                    fprint("Error: unable to start Run Dog Mode thread")
                             elif received["Type"] == "WatchDog":
                                 response = json.dumps({"Type": "WatchDog Ack"})
                                 conn.sendall(response.encode('utf-8'))
                             else:
                                 response = json.dumps({"Type": "Unknown Message Ack"})
                                 conn.sendall(response.encode('utf-8'))
-                                print("Unknown message type")
-                                print(received)
+                                fprint("Unknown message type")
+                                fprint(received)
                     if not data:
                         break
 
@@ -917,7 +921,7 @@ if __name__ == "__main__":
     relays.open()
 
     loadState()
-    #print(zoneTable)
+    #fprint(zoneTable)
     if DEBUG:
         for timer in range(len(timerTable)):
             timerTable[timer]['lastTimeOn'] = 0
@@ -925,33 +929,33 @@ if __name__ == "__main__":
     try:
         saveStateThread = Thread(target=saveState)
         saveStateThread.start()
-        print("Save State Thread: ", saveStateThread)
+        fprint("Save State Thread: ", saveStateThread)
     except:
-         print("Error: unable to start save state thread")
+         fprint("Error: unable to start save state thread")
 
     try:
         timersThread = Thread(target=timerThread)
         timersThread.start()
-        print("Timers Thread: ", timersThread)
+        fprint("Timers Thread: ", timersThread)
     except:
-         print("Error: unable to start timers thread")
+         fprint("Error: unable to start timers thread")
 
     try:
         jsonServerThread = Thread(target=jsonServer)
         jsonServerThread.daemon = True
         jsonServerThread.start()
-        print("Jason Sever Thread: ", jsonServerThread)
+        fprint("Jason Sever Thread: ", jsonServerThread)
     except:
-         print("Error: unable to start JSON server thread")
+         fprint("Error: unable to start JSON server thread")
 
     if WATCH_DOG_ENABLE and piHost:
         try:
             watchDogPetterThread = Thread(target=watchDogPetter)
             watchDogPetterThread.daemon = True
             watchDogPetterThread.start()
-            print("Watch Dog Petting Thread: ", watchDogPetterThread)
+            fprint("Watch Dog Petting Thread: ", watchDogPetterThread)
         except:
-            print("Error: unable to start Watch Dog Petting thread")
+            fprint("Error: unable to start Watch Dog Petting thread")
 
     app.run(host='0.0.0.0', debug=True, use_reloader=False)
 

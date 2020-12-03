@@ -23,6 +23,8 @@ sudo i2cdetect -y 1
 
 The 7 bit I2C address of all found devices will be shown (ignoring the R/W bit, so I2C address 0000 0110 is displayed as hex 03).
 '''
+from config import *
+from FlexPrint import fprint
 import smbus
 from threading import Lock
 import time
@@ -136,7 +138,7 @@ class relayCont:
 
     def __enter__(self):
         if self.verboseness > 0:
-           print("Initializing TI PCA9534(s) ...")
+           fprint("Initializing TI PCA9534(s) ...")
         for index, address in enumerate(self.addressList):
             self.writeReg(card=index, regAdd=addressMap['OutPort'],  value=ALL_RELAYS_IN_NORMAL_STATE) # disconnect all NO relay pins
             self.writeReg(card=index, regAdd=addressMap['Polarity'], value=ALL_CONTROLS_NOT_INVERTED)  # re-write default value (should be redundant with PoR value)
@@ -147,7 +149,7 @@ class relayCont:
                 errorString = f'Failed to initialize card {index} at address {hex(address)}.  Expected 0xFF on READ INPORT and read {hex(registerVal[0])}'
                 raise (relayError(errorString))
         if self.verboseness > 0:
-            print("Initializing TI PCA9534(s) successful")
+            fprint("Initializing TI PCA9534(s) successful")
         return(self)
 
     def reinit(self):
@@ -157,7 +159,7 @@ class relayCont:
 
     def closeNOrelays(self, relayList):
         if self.verboseness > 0:
-            print("Start of Setting Relays")
+            fprint("Start of Setting Relays")
         registerWriteVal = []
         for i in range(len(self.addressList)):
             registerWriteVal.append(0)
@@ -177,7 +179,7 @@ class relayCont:
                 registerVal = self.readReg(card=card, regAdd=regAdd)
                 if registerVal[0] != self.shadowCopy[card][regAdd]:
                     corruption = True
-                    print(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
+                    fprint(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
                     self.writeReg(card=card, regAdd=regAdd, value=self.shadowCopy[card][regAdd])
         if corruption:
             corruptionFixed = True
@@ -186,26 +188,26 @@ class relayCont:
                     registerVal = self.readReg(card=card, regAdd=regAdd)
                     if registerVal[0] != self.shadowCopy[card][regAdd]:
                         corruptionFixed = False
-                        print(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
-                        print("Corruption not corrected")
+                        fprint(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
+                        fprint("Corruption not corrected")
         else:
-            print("No Corrupiton detected")
+            fprint("No Corrupiton detected")
         if corruptionFixed:
-            print("Corruption Corrected")
+            fprint("Corruption Corrected")
         # END of HW workaround
         if self.verboseness > 0:
             relayListString = ''
             for _ in relayList:
                 relayListString += f" {_},"
             relayListString = relayListString[:-1]
-            print(f"Closed relay(s): {relayListString}")
+            fprint(f"Closed relay(s): {relayListString}")
         return(0)
 
     def checkState(self):
         # This method was added to handle HW corruption of the TI PCA9534 until the hardware is fixed and is called when
         # everything should be off to ensure everything is turned off
         if self.verboseness > 0:
-            print("Checking register values against shadow copies")
+            fprint("Checking register values against shadow copies")
         corruption = False
         corruptionFixed = False
         for card, address in enumerate(self.addressList):
@@ -213,7 +215,7 @@ class relayCont:
                 registerVal = self.readReg(card=card, regAdd=regAdd)
                 if registerVal[0] != self.shadowCopy[card][regAdd]:
                     corruption = True
-                    print(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
+                    fprint(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
                     self.writeReg(card=card, regAdd=regAdd, value=self.shadowCopy[card][regAdd])
         if corruption:
             corruptionFixed = True
@@ -222,12 +224,12 @@ class relayCont:
                     registerVal = self.readReg(card=card, regAdd=regAdd)
                     if registerVal[0] != self.shadowCopy[card][regAdd]:
                         corruptionFixed = False
-                        print(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
-                        print("Corruption not corrected")
+                        fprint(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
+                        fprint("Corruption not corrected")
         else:
-            print("No Corrupiton detected")
+            fprint("No Corrupiton detected")
         if corruptionFixed:
-            print("Corruption Corrected")
+            fprint("Corruption Corrected")
         # END of HW workaround
 
     def getNumCards(self):
@@ -246,11 +248,11 @@ class relayCont:
         busLock.acquire()
         try:
             if self.verboseness > 1:
-                print(f"Writing value: {hex(value)} to Card {card} @ {hex(self.addressList[card])}, {revAddressMap[regAdd]}, {hex(regAdd)}")
+                fprint(f"Writing value: {hex(value)} to Card {card} @ {hex(self.addressList[card])}, {revAddressMap[regAdd]}, {hex(regAdd)}")
             if regAdd in self.shadowCopy[card]:
                 registerVal = bus.read_i2c_block_data(self.addressList[card], regAdd, 1)
                 if registerVal[0] != self.shadowCopy[card][regAdd]:
-                    print(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
+                    fprint(f"Register {revAddressMap[regAdd]} on card at {hex(self.addressList[card])} is corrupt.  Read {hex(registerVal[0])}, expected {hex(self.shadowCopy[card][regAdd])}")
             self.shadowCopy[card][regAdd] = value
             rc = bus.write_byte_data(self.addressList[card], regAdd, value)
         except:
@@ -269,7 +271,7 @@ class relayCont:
             raise (relayError(f'Could not read from {revAddressMap[regAdd]} register on card at {self.addressList[card]}'))
         if self.verboseness > 1:
             registerValHex = [hex(registerVal[_]) for _ in range(len(registerVal))]
-            print(f"Read value: {registerValHex} from Card {card} @ {hex(self.addressList[card])}, {revAddressMap[regAdd]}, {hex(regAdd)}")
+            fprint(f"Read value: {registerValHex} from Card {card} @ {hex(self.addressList[card])}, {revAddressMap[regAdd]}, {hex(regAdd)}")
         busLock.release()
         return(registerVal)
 
@@ -278,7 +280,7 @@ class relayCont:
 
     def __exit__(self, exception_type, exception_value, traceback):
         if self.verboseness > 0:
-           print("Disabling control of all relays through TI PCA9534(s) ...")
+           fprint("Disabling control of all relays through TI PCA9534(s) ...")
         for index, address in enumerate(self.addressList):
             self.writeReg(card=index, regAdd=addressMap['Config'],   value=ALL_DISABLE_RELAY_CONTROL)   # disable control of all relays through Outport
             # Checking configuration succeeded
@@ -286,7 +288,7 @@ class relayCont:
             if registerVal[0] != 0x00:
                 raise (relayError(f'Failed to disable card {index} at address {hex(address)}.  Expected 0x00 on READ INPORT and read {hex(registerVal[0])}'))
         if self.verboseness > 0:
-            print("Success, relays disabled.")
+            fprint("Success, relays disabled.")
         return(self)
 
     def verbose(self, level):
