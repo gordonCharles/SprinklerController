@@ -46,10 +46,10 @@ revAddressMap = {}
 for key in addressMap:
     revAddressMap[addressMap[key]] = key
 
-addressMapDescriptions = {'InPort'  : "The logical value seen on the TI PCA9534 P[7:0] pins, representing the cummulative effects of the OutPort, Polarity and Config registers",
+addressMapDescriptions = {'InPort'  : "The logical value seen on the TI PCA9534 P[7:0] pins, representing the cumulative effects of the OutPort, Polarity and Config registers",
                           'OutPort' : "Values to be exclusive OR'd with the Polarity register before being driven on the the TI PCA9534 P[7:0] pins (for pins enabled in the config register",
                           'Polarity': "Not used. When set to 1 Polarity register bits will invert the corresponding OutPort bits being driven on the the TI PCA9534 P[7:0] pins",
-                          'Config'  : "Output enalbe bits for each of the TI PCA9534 P[7:0] pins"}
+                          'Config'  : "Output enable bits for each of the TI PCA9534 P[7:0] pins"}
 
 relayMaskList = [0x01, 0x04, 0x02, 0x08, 0x40, 0x10, 0x20, 0x80] # Maps 9534A registers bits to relays
 regSize       = len(relayMaskList)  # needed to support multiple relay daughter cards
@@ -119,7 +119,7 @@ class relayCont:
         writeReg(card, regAdd, value) - write a <value> to register at address <regAdd> on card number <card>
         readReg(card, regAdd)         - returns a list of bytes (always 1 in length read from register at address
                                         <regAdd> on card number <card>
-        verbose(level)                - Set verbosness:
+        verbose(level)                - Set verboseness:
                                             0 - silent
                                             1 - high level command reporting
                                             2 - register level command reporting
