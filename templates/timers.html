@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Zones Page{% endblock %}
+{% block content %}
+
+    <nav class="navbar navbar-expand navbar-dark bg-primary ">
+    <!-- <nav class="navbar navbar-expand navbar-light bg-primary navbar-inverse"> -->
+    <!-- <nav class="navbar navbar-light bg-info navbar-inverse"> -->
+      <div class="collapse navbar-collapse">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="zones">Zones<span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link active" href="timers">Timers</a>
+          <a class="nav-item nav-link" href="settings">Settings</a>
+          <!--<a class="nav-item nav-link disabled" href="#">Disabled</a> -->
+        </div>
+      </div>
+    </nav>
+
+    <div class="container pl-3 pr-2">
+      <form action="#" method="post">
+
+        <div class="form-row my-2 my-sm-3">
+
+          <div class="col">
+            <button type="submit" value="add" name="timerButton" class="btn btn-sm btn-outline-primary float-left">+</button>
+          </div>
+          <div class="col">
+            <button type="submit" value="save" name="timerButton" class="btn btn-sm btn-outline-primary float-right">save</button>
+          </div>
+
+        </div>  <!-- row -->
+
+
+        <!-- Controls Table -->
+        {% for row in timerTable %}
+        <div class="form-row mb-2 mb-sm-3 ">
+        {% set rowCount = loop.index0+1 %}
+          <!--
+          <div class="col">
+            <button type="submit" class="btn btn-outline btn-block">1</button>
+          </div>
+          -->
+
+          <div class="col-1 mr-1 px-0">
+            <div class="form-group">
+              {% if row.labeled == True %}
+                <label for="timerIndex">Timer</label>
+              {% endif %}
+              {% if row.selected == True %}
+                <button type="submit" value="timer {{ loop.index0 }}" name="timerButton" id="timerIndex" class="btn btn-sm btn-outline-primary btn-block active">{{ loop.index0+1 }}</button>
+              {% else %}
+                <button type="submit" value="timer {{ loop.index0 }}" name="timerButton" id="timerIndex" class="btn btn-sm btn-outline btn-block">{{ loop.index0+1 }}</button>
+              {% endif %}
+              <!-- <button type="submit" value="timer {{ rowCount }}" name="zoneButton" id="timerIndex" class="btn btn-outline-dark btn-block w-50">{{ loop.index0+1 }}</button> -->
+            </div>
+          </div>
+
+          {% if row.selected == True %}
+          <div class="col-auto text-center pl-4">
+            <div class="form-group">
+              {% if row.labeled == True %}
+                <label class="px-0 text-white">T</label>
+              {% endif %}
+              <button type="submit" value="delete {{ loop.index0 }}" name="timerButton" class="btn btn-sm btn-outline-primary btn-block">Delete</button>
+            </div>
+          </div>
+
+          {% else %}
+          <div class="col-3 text-center px-0" style="max-width: 150px;">
+            <div class="form-group">
+              {% if row.labeled == True %}
+                <label for="inputTime">Start</label>
+              {% endif %}
+              <input type="text" class="form-control-sm w-75" name="{{ loop.index0 }} startTime" id="inputTime" placeholder="{{ row.startTime }}">
+            </div>
+          </div>
+
+          <div class="col px-0" style="max-width: 80px;">
+            <div class="form-group">
+              {% if row.labeled == True %}
+                <label for="thisCustomSelect">Type</label>
+              {% endif %}
+              <select name="{{ loop.index0 }} Type" class="custom-select custom-select-sm" id="thisCustomSelect" aria-haspopup="true" aria-expanded="false">
+              {% for type in timerTypes %}
+                {% if type == row.Type %}
+                  <option value="{{ type }}" selected="selected">{{ type }}</option>
+                {% else %}
+                  <option value="{{ type }}">{{ type }}</option>
+                {% endif %}
+              {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          {% if row.Type == "INT" %}
+            <div class="col-3 px-2">
+              <div class="form-group">
+                {% if row.labeled == True %}
+                  <label for="intCustomSelect">Days</label>
+                {% endif %}
+                <select name="{{ loop.index0 }} Interval" class="custom-select custom-select-sm" id="intCustomSelect">
+                {% for days in intervals %}
+                  {% if days == row.Interval %}
+                    <option value="{{ days }}" selected="selected">{{ days }} </option>
+                  {% else %}
+                    <option value="{{ days }}">{{ days }} </option>
+                  {% endif %}
+                {% endfor %}
+                </select>
+              </div>
+            </div>
+          <div class="col-3">
+          </div>
+          {% else %}
+            {% for name, abb in daysOfWeek %}
+              <div class="col-auto">
+                <div class="form-group">
+                  {% if row.labeled == True %}
+                    <label for="{{ rowCount }} {{ name }}">{{ abb }}</label><br>
+                  {% endif %}
+                  <input type="checkbox" name="{{ rowCount-1 }} {{ name }}" class="active" id="{{ rowCount}} {{ name }}" {{ row[name] }}>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+        </div>  <!-- row -->
+        {% endfor %}
+
+      </form>
+    </div>
+{% endblock %}

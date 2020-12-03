@@ -1,0 +1,13 @@
+.custom-select{
+background-image: none !important;
+padding-right:1px !important;
+/* background-size: 1px 1px; !important;
+overflow: visible !important;
+text-overflow: visible !important; */
+}
+.custom-select-sm{
+background-image: none !important;
+/* background-size: 1px 1px; !important;
+overflow: visible !important;
+text-overflow: visible !important; */
+}

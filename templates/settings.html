@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Zones Page{% endblock %}
+{% block content %}
+
+    <nav class="navbar navbar-expand navbar-dark bg-primary ">
+    <!-- <nav class="navbar navbar-expand navbar-light bg-primary navbar-inverse"> -->
+    <!-- <nav class="navbar navbar-light bg-info navbar-inverse"> -->
+      <div class="collapse navbar-collapse">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="zones">Zones<span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="timers">Timers</a>
+          <a class="nav-item nav-link active" href="settings">Settings</a>
+          <!--<a class="nav-item nav-link disabled" href="#">Disabled</a> -->
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <form action="#" method="post">
+
+                <!-- Controls Table -->
+        <div class="form-row my-5 my-sm-5">
+
+          <div class="col">
+            {% if config.allOff == True %}
+              <button type="submit" value="allOff" name="settingButton" class="btn btn-outline-primary btn-block active" aria-pressed="true">All Off</button>
+            {% else %}
+              <button type="submit" value="allOff" name="settingButton" class="btn btn-outline-primary btn-block">All Off</button>
+            {% endif %}
+          </div>
+
+        </div>  <!-- row -->
+
+        <div class="form-row mb-5 mb-sm-5">
+
+          <div class="col">
+            {% if config.dogMode == True %}
+              <button type="submit" value="dogMode" name="settingButton" class="btn btn-outline-primary btn-block active" aria-pressed="true">Dog Mode</button>
+            {% else %}
+              <button type="submit" value="dogMode" name="settingButton" class="btn btn-outline-primary btn-block">Dog Mode</button>
+            {% endif %}
+          </div>
+
+        </div>  <!-- row -->
+
+        <div class="form-row mb-5 mb-sm-5">
+
+          <div class="col">
+            {% if config.weatherAdjust == True %}
+              <button type="submit" value="weatherAdjust" name="settingButton" class="btn btn-outline-primary btn-block active" aria-pressed="true">Weather Adjust</button>
+            {% else %}
+              <button type="submit" value="weatherAdjust" name="settingButton" class="btn btn-outline-primary btn-block">Weather Adjust</button>
+            {% endif %}
+          </div>
+
+        </div>  <!-- row -->
+
+        <div class="form-row">
+
+          <div class="col">
+            <button type="submit" class="btn btn-outline btn-block">Automatic Shut Off</button>
+          </div>
+
+        </div>  <!-- row -->
+
+
+        <div class="form-row mb-2 mb-sm-3">
+
+          <div class="col-4">
+            <label class="mr-sm-2" for="MultiZone">Multi-Zone</label>
+            <select name="multiZone" class="custom-select mb-2 mr-sm-2 mb-sm-0" id="MultiZone">
+              {% for time in wateringTimes %}
+                {% if time == autoShutOff.multiZone %}
+                  <option value="{{ time }}" selected="selected">{{ time }}</option>
+                {% else %}
+                  <option value="{{ time }}">{{ time }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-2">
+            <label class="text-white"></label>
+          </div>
+
+          <div class="col-4">
+            <label for="saveButton" class="text-white">hidden</label>
+            <button type="submit" value="save" name="settingButton" id="saveButton" class="btn btn-outline-primary btn-block">save</button>
+          </div>
+
+        </div>  <!-- row -->
+
+        <div class="form-row mb-2 mb-sm-3">
+
+          <div class="col-4">
+            <label class="mr-sm-2" for="SingleZone">Single-Zone</label>
+            <select name="singleZone" class="custom-select mb-2 mr-sm-2 mb-sm-0" id="SingleZone">
+              {% for time in wateringTimes %}
+                {% if time == autoShutOff.singleZone %}
+                  <option value="{{ time }}" selected="selected">{{ time }}</option>
+                {% else %}
+                  <option value="{{ time }}">{{ time }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-2">
+            <label class="text-white"></label>
+          </div>
+
+          <div class="col-4">
+            <label for="saveButton2" class="text-white">hidden</label>
+            <button type="submit" value="save" name="settingButton" id="saveButton2" class="btn btn-outline-primary btn-block">save</button>
+          </div>
+
+        </div>  <!-- row -->
+
+
+      </form>
+    </div>
+{% endblock %}

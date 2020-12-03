@@ -1,0 +1,14 @@
+[Unit]
+Description=Sprinkler Controller Service - see Sprinkler_Controller_README.txt
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u SprinklerController.py --serviceMode
+WorkingDirectory=/home/pi/Software/Python/SprinklerController
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

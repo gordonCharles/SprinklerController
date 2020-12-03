@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Zones Page{% endblock %}
+{% block content %}
+
+    <nav class="navbar navbar-expand navbar-dark bg-primary ">
+    <!-- <nav class="navbar navbar-expand navbar-light bg-primary navbar-inverse"> -->
+    <!-- <nav class="navbar navbar-light bg-info navbar-inverse"> -->
+      <div class="collapse navbar-collapse">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="#">Zones<span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="timers">Timers</a>
+          <a class="nav-item nav-link" href="settings">Settings</a>
+          <!--<a class="nav-item nav-link disabled" href="#">Disabled</a> -->
+        </div>
+      </div>
+    </nav>
+
+    <div class="container pr-0">
+      <form action="#" method="post">
+
+        <!-- Controls Table -->
+        {% for row in zoneTable %}
+
+        <div class="form-row mb-2 mb-sm-3">
+
+          <div class="col-5 text-center pl-0">
+            <!--<input type="submit" value="curbside lawn" name="curbSideLawn" class="btn btn-outline-primary btn-block"> -->
+            {% if loop.index0 == 0 %}
+              <label class="mr-sm-2">Zone</label>
+            {% endif %}
+            {% if row.on == True %}
+              <button type="submit" value="{{ loop.index0 }} on off" name="zoneButton" class="btn btn-sm btn-outline-primary btn-block active" aria-pressed="true">{{ row.name }}</button>
+            {% else %}
+              <button type="submit" value="{{ loop.index0 }} on on" name="zoneButton" class="btn btn-sm btn-outline-primary btn-block">{{ row.name }}</button>
+            {% endif %}
+          </div>
+
+          <div class="col-2 px-1  text-center">
+            {% if loop.index0 == 0 %}
+              <label class="px-0">Min</label>
+            {% endif %}
+            <!-- <label class="mr-sm-2 sr-only" for="ZoneDuration">ZoneDuration</label> -->
+            <select name="{{ loop.index0 }} wateringTime" class="custom-select custom-select-sm mb-2 mr-sm-2 mb-sm-0" id="ZoneDuration">
+              {% for time in wateringTimes %}
+                {% if time == row.wateringTime %}
+                  <option value="{{ time }}" selected="selected">{{ time }}</option>
+                {% else %}
+                  <option value="{{ time }}">{{ time }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-1 col-sm-2 px-0 text-center">
+            {% if loop.index0 == 0 %}
+              <label class="px-0">Timer</label>
+            {% endif %}
+            <!--label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label-->
+            <select name="{{ loop.index0 }} timer" class="custom-select custom-select-sm mr-5 mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+              {% for timer in timerTable %}
+                {% if loop.index0+1 == row.timer %}
+                  <option value="{{ loop.index0+1 }}" selected="selected">{{ loop.index0+1 }}</option>
+                {% else %}
+                  <option value="{{ loop.index0+1 }}">{{ loop.index0+1 }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-auto">
+            {% if loop.index0 == 0 %}
+              <label class="px-0 text-white">T</label>
+              <!--span class="align-bottom"-->
+            {% endif %}
+            {% if row.multiZone == True %}
+              <button type="submit" value="{{ loop.index0 }} multiZone off" name="zoneButton" class="btn btn-sm btn-outline-primary btn-block active" aria-pressed="true">Multi</button>
+            {% else %}
+              <button type="submit" value="{{ loop.index0 }} multiZone on" name="zoneButton" class="btn btn-sm btn-block btn-outline-primary">Multi</button>
+            {% endif %}
+          </div>
+
+          <div class="col-auto px-0">
+            {% if loop.index0 == 0 %}
+              <label class="px-0 text-white">T</label>
+            {% endif %}
+            {% if row.dogDetectOn == True %}
+              <button type="submit" value="{{ loop.index0 }} dogDetectOn off" name="zoneButton" class="btn btn-sm btn-outline-primary btn-block active" aria-pressed="true">Dog</button>
+            {% else %}
+              <button type="submit" value="{{ loop.index0 }} dogDetectOn on" name="zoneButton" class="btn btn-sm btn-block btn-outline-primary">Dog</button>
+            {% endif %}
+          </div>
+
+        </div>  <!-- row -->
+        {% endfor %}
+
+        <div class="form-row justify-content-center">
+          <div class="col-8">
+            <button type="submit" value="save" name="saveButton" class="btn btn-sm btn-outline-primary btn-block">Save</button>
+          </div>
+
+        </div>  <!-- row -->
+
+      </form>
+    </div>
+{% endblock %}

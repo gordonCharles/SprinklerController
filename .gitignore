@@ -1,0 +1,11 @@
+/.htaccess
+/.idea
+/.vscode
+/Backup
+/TCPSocket.py
+/TestGetSystem.py
+/TestRelayController.py
+/TestWatchDog.py
+/__pycache__
+/private.py
+/testPrivate.py
