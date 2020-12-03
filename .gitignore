@@ -9,3 +9,4 @@
 /__pycache__
 /private.py
 /testPrivate.py
+/version_check.py
