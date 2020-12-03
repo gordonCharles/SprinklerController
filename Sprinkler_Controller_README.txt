@@ -26,7 +26,7 @@ tmpfs /var/ramdisk tmpfs nodev,nosuid,size=1M 0 0
 Should return a number of lines including:
 Filesystem     1K-blocks    Used Available Use% Mounted on
   :                   :        :        :     :  :
-tmpfs               1024       8      1024   0% /var/ramdisk
+tmpfs               1024       0      1024   0% /var/ramdisk
 
 
 Enabling the initialization at boot - needed for cases where the watchdog resets the system
