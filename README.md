@@ -67,6 +67,8 @@ To install on Linux / macOS / Windows platform (assuming you already have python
 1. clone / download the repository
 1. modify RAMDISK location, I have it set for /tmp which should work by default on Linux / macOS
 1. create your private.py definition file - see definitions with import from private in SprinklerController.py
+1. update `GMAIL_SMTP_SERVER  = "smtp.gmail.com"` and `SSL_PORT = 465` in SprinklerController.py for the server
+for the `SENDER_EMAIL` you configured in private.py 
 1. move smbus.py from Simulation to the same directory with SprinklerController.py
 1. run SprinklerController.py
 1. browse http://0.0.0.0:5000/zones
