@@ -117,7 +117,7 @@ if os.path.isfile(CONFIG_FILE):
         for line in configFile:
             workingConfigFile.write(line)
             parameter = line.rstrip()
-            if parameter == "ENABLE_WATCHDOG=1":
+            if parameter == "ENABLE_WATCHDOG=1" and piHost:
                 WATCH_DOG_ENABLE = True
                 fprint("Watch Dog Enabled")
     workingConfigFile.close()
