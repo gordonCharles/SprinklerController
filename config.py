@@ -1,5 +1,5 @@
 WSGI_SERVER = False
-if WSGI_SERVER = True:
+if WSGI_SERVER == True:
     FLEX_PRINT_STD_ERR = True
     FLEX_PRINT_STD_OUT = False
     MESSAGING          = False
