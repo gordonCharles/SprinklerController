@@ -27,7 +27,7 @@ Requirements
 Application
 ------------ 
 Sprinkler controller application runs an a Raspberry Pi with a Sequent MicroSystems set of 8-Relay stackable hats, 
-one relay per valve (watering zone).  Save the i2c address('s) of the hats the interface
+one relay per valve (watering zone).  Save the i2c address('s) of the hats, the interface
 to the hats is obfuscated in RelayController.py.  This application focuses the functionality of providing a html
 based GUI interface suitable for mobile devices, via almost entirely from the bootstrap 4 cascading style sheets
 (css) and javascript.  Flask is used as a means to automate the creation of the html, providing a responsive UI
@@ -85,7 +85,7 @@ Hardware
 -------- 
 1. Raspberry Pi4 w/ 2GB RAM and Pi4 compatible AC/DC power supply.  The RAM requirements are between 512MB and 1GB and I believe this could run on any version
 that met the memory requirements.  In my use case the Pi access my home network via WiFi, so I value the improved WiFi range in the Pi4.
-1. [Sequent MicroSystems set of 8-Relay stackable] (https://sequentmicrosystems.com/product/raspberry-pi-relays-stackable-card/) hat(s).  I 
+1. [Sequent MicroSystems set of 8-Relay stackable](https://sequentmicrosystems.com/product/raspberry-pi-relays-stackable-card/) hat(s).  I 
 use two hats.  **WARNING** the stand-offs provided with my hats were incorrectly sized and too small.  The through hole solder tabs on the 5V supply input come 
 dangerously close to the grounded Ethernet receptacle.  Be careful when stacking the first hat on your Pi.  If you choose to mount the entire system in an 
 enclosure you will need additional stand-offs anyway.  **WARNING** the silk screen labels for R1-NO and R1-NC are flipped on the version of the board I received.
