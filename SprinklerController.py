@@ -362,7 +362,7 @@ def configureTimerLables():
 
 def parseTime(timeString, default):
     ''' 
-    parseTime peforms some slick handling of user input with a great degree of flexibility
+    parseTime performs some slick handling of user input with a great degree of flexibility
     to allow users to enter time in the fewest number of characters.  It handles the following:
     1) entry in 24 hour or AM / PM automatically detected
     2) AM PM detection on either A, AM, P, PM.
