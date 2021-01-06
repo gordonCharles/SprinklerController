@@ -11,7 +11,9 @@ The sprinkler controller was developed as part of a larger system which had requ
 by existing solutions and to be honest the UX design of most available systems are lacking, and at the least 
 not targeting mobile display resolutions.  
 
-[A simulated version with a fully functional GUI can be found here](http://thegacway.com/zones)
+[A more interactive description can be found here](https://thegacway.com/index.php/2020/12/10/sprinklercontroller/)
+
+[A simulated version with a fully functional GUI can be found here](https://thegacway.com/zones)
 
 Requirements
 ------------ 
@@ -71,7 +73,7 @@ To install on Linux / macOS / Windows platform (assuming you already have python
 for the `SENDER_EMAIL` you configured in private.py 
 1. move smbus.py from Simulation to the same directory with SprinklerController.py
 1. run SprinklerController.py
-1. browse http://0.0.0.0:5000/zones
+1. browse //0.0.0.0:5000/zones
 
 To simulate at faster than real time: 
 
@@ -113,7 +115,7 @@ is truly impressive.  To install this on an Linux / macOS / Windows platform (as
 1. modify sc_config.txt to turn the watchdog off `ENABLE_WATCHDOG=0` or move the file from the SprinklerController.py directory
 1. follow the instructions in RelayController.py for verifying and setting the i2c instance connected to the hats
 1. run SprinklerController.py
-1. browse http://x.x.x.x:5000/zones, where x.x.x.x is the Pi's IP address
+1. browse //x.x.x.x:5000/zones, where x.x.x.x is the Pi's IP address
 
 Assembly
 -------- 
