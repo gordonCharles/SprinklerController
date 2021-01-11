@@ -180,6 +180,10 @@ config        = {'allOff'        : False,
 
 autoShutOff   = {'multiZone'  : 60,
                  'singleZone' : 15}
+
+scheduledDownTime = {'duration' : 60, 'timer': 4}
+downTime          = False
+
 relayShadow   = []
 
 updateNVM             = 0 # Time from the last epoch in seconds since the last change to NVM data
@@ -426,7 +430,7 @@ def zones():
                     updateNVM = time.time()
                     if keypressed[2] == 'on': # User has manually turned on zone
                         zoneTable[index]['manualStartTime'] = localTime()
-            else:
+            else: # Key is multiselect with key format of "index dict_key", where dict_key = 'timer' or 'wateringTime'
                 multiSelectKey = key.split(' ')
                 index = int(multiSelectKey[0])
                 zoneTable[index][multiSelectKey[1]] = int(zoneForm[key])
@@ -453,7 +457,7 @@ def timers():
                 if keypressed[0] == 'save':
                     doNothing = True
                 elif keypressed[0] == 'add':
-                    timerTable.append(timerTable[len(timerTable)-1])
+                    timerTable.append(copy.deepcopy(timerTable[len(timerTable)-1]))
                 elif keypressed[0] == 'delete':
                     timerTable.pop(int(keypressed[1]))
                 else:
@@ -495,13 +499,15 @@ def settings():
                     config[settingForm[key]] = not config[settingForm[key]]
                     if settingForm[key] == 'allOff':
                         setRelays("manually")
+            elif key.split(' ')[0] == "scheduledDownTime":
+                scheduledDownTime[key.split(' ')[1]] = int(settingForm[key])
             else: # must be auto-shutoff value
                 autoShutOff[key] = int(settingForm[key])
         return render_template("settings.html", config=config,
-                               wateringTimes=wateringTimes, autoShutOff=autoShutOff, content="true")
+                               wateringTimes=wateringTimes, autoShutOff=autoShutOff, timerTable=timerTable, scheduledDownTime=scheduledDownTime, content="true")
     else:
         return render_template("settings.html", config=config,
-                               wateringTimes=wateringTimes, autoShutOff=autoShutOff, content="true")
+                               wateringTimes=wateringTimes, autoShutOff=autoShutOff, timerTable=timerTable, scheduledDownTime=scheduledDownTime, content="true")
 
 configureTimerLables()
 
@@ -540,6 +546,7 @@ def saveState():
     global timerTable
     global config
     global autoShutOff
+    global scheduledDownTime
 
     while True:
         time.sleep(NVM_UPDATE_INTERVAL)
@@ -553,6 +560,7 @@ def saveState():
                 pickle.dump(timerTable,   NVMfile)
                 pickle.dump(config,       NVMfile)
                 pickle.dump(autoShutOff,  NVMfile)
+                pickle.dump(scheduledDownTime,   NVMfile)
             updateNVM = 0
 
 def loadState():
@@ -577,6 +585,7 @@ def loadState():
     global timerTable
     global config
     global autoShutOff
+    global scheduledDownTime
 
     try: # Open NVM file if it exists otherwise use defaults
         with open(NVM_FILENAME, 'rb') as NVMfile:
@@ -584,6 +593,7 @@ def loadState():
             timerTable  = pickle.load(NVMfile)
             config      = pickle.load(NVMfile)
             autoShutOff = pickle.load(NVMfile)
+            scheduledDownTime  = pickle.load(NVMfile)
         for zone in range(len(zoneTable)):
             if zoneTable[zone]['wateringTime'] not in wateringTimes:
                 zoneTable[zone]['wateringTime'] = min(wateringTimes, key=lambda wateringTime : abs(wateringTime - zoneTable[zone]['wateringTime']))
@@ -674,13 +684,16 @@ def timerThread():
     global config
     global autoShutOff
     global keepAlive
+    global scheduledDownTime
+    global downTime
 
     pendingZones = queue.Queue()
     activeZones  = []
     wateringIdle = True
     endTimer     = 0
     currentZone  = 0
-    oldQsize = 0
+    oldQsize     = 0
+    downTimeStart = 0
 
     while True:
 
@@ -714,6 +727,8 @@ def timerThread():
                                 zoneList.append(zone)
                             else:
                                 pendingZones.put([zone])
+                    if scheduledDownTime['timer']-1 == timer:
+                        downTimeStart = timeInSeconds
                     if len(zoneList) > 0:
                         pendingZones.put(zoneList)
             else: #timerTable[timer]['Type'] == 'DoW'
@@ -727,10 +742,29 @@ def timerThread():
                                 zoneList.append(zone)
                             else:
                                 pendingZones.put([zone])
+                    if scheduledDownTime['timer']-1 == timer:
+                        downTimeStart = timeInSeconds
                     if len(zoneList) > 0:
                         pendingZones.put(zoneList)
 
         # Turn on zones, removing one element from the queue, then waiting for the active zone(s) to complete before removing the next element.
+        if timeInSeconds > downTimeStart and timeInSeconds < (downTimeStart + 60 * scheduledDownTime['duration']):
+            if downTime == False:
+                for zone in range(len(zoneTable)):
+                    zoneTable[zone]['on'] = False
+                setRelays("automatically")
+                for zone in range(len(activeZones)): # Adjust starting time of any running zones
+                    activeZones[zone] = (activeZones[zone][0], activeZones[zone][1] + 60 * scheduledDownTime['duration'])
+                zoneTable[zone]['on'] = True
+                downTime = True
+        elif timeInSeconds > (downTimeStart + 60 * scheduledDownTime['duration']):
+            if downTime == True:
+                if len(activeZones) > 0:
+                    for zone in range(len(activeZones)): # Restart interrupted zones
+                        zoneTable[activeZones[zone][0]]['on'] = True
+                    setRelays("automatically")
+                downTime = False
+        
         manualWatering = False
         for zone in range(len(zoneTable)):
             if timeInSeconds > zoneTable[zone]['manualStartTime']:
@@ -739,14 +773,14 @@ def timerThread():
         wateringIdle = len(activeZones) == 0 and not manualWatering
         if wateringIdle and not previousWateringIdle: # just finished all watering
             checkRelays()
-        if wateringIdle and not pendingZones.empty():
+        if wateringIdle and not downTime and not pendingZones.empty():
             activeZones = []
             currentZones = pendingZones.get()
             for zone in currentZones:
                 activeZones.append((zone, timeInSeconds))
                 zoneTable[zone]['on'] = True
             setRelays("as scheduled")
-        if not wateringIdle:
+        if not wateringIdle and not downTime:
             zoneSetToOff = False
             for zone, startTime in activeZones:
                 wateringTime = max(MIN_WATERING_TIME, 60 * zoneTable[zone]['wateringTime'] - DOG_WARNING_DURATION * zoneTable[zone]['detectCount'])
@@ -805,8 +839,9 @@ def runDogMode():
     global zoneTable
     global dogWarning
     global config
+    global downTime
 
-    if config['dogMode']:
+    if config['dogMode'] and not downTime:
         if not dogWarning:
             zoneList = []
             for zone in range(len(zoneTable)):

@@ -19,7 +19,7 @@
       <form action="#" method="post">
 
                 <!-- Controls Table -->
-        <div class="form-row my-5 my-sm-5">
+        <div class="form-row my-4 my-sm-4">
 
           <div class="col">
             {% if config.allOff == True %}
@@ -31,7 +31,7 @@
 
         </div>  <!-- row -->
 
-        <div class="form-row mb-5 mb-sm-5">
+        <div class="form-row mb-4 mb-sm-4">
 
           <div class="col">
             {% if config.dogMode == True %}
@@ -43,7 +43,7 @@
 
         </div>  <!-- row -->
 
-        <div class="form-row mb-5 mb-sm-5">
+        <div class="form-row mb-4 mb-sm-4">
 
           <div class="col">
             {% if config.weatherAdjust == True %}
@@ -79,11 +79,11 @@
             </select>
           </div>
 
-          <div class="col-2">
+          <div class="col-5">
             <label class="text-white"></label>
           </div>
 
-          <div class="col-4">
+          <div class="col-3">
             <label for="saveButton" class="text-white">hidden</label>
             <button type="submit" value="save" name="settingButton" id="saveButton" class="btn btn-outline-primary btn-block">save</button>
           </div>
@@ -105,16 +105,67 @@
             </select>
           </div>
 
-          <div class="col-2">
+          <div class="col-5">
             <label class="text-white"></label>
           </div>
 
-          <div class="col-4">
+          <div class="col-3">
             <label for="saveButton2" class="text-white">hidden</label>
             <button type="submit" value="save" name="settingButton" id="saveButton2" class="btn btn-outline-primary btn-block">save</button>
           </div>
 
         </div>  <!-- row -->
+
+        <div class="form-row mb-2 mb-sm-3">
+
+          <div class="col-4">
+            <label class="mr-sm-2" for="scheduledDownTime">Down Time</label>
+            <select name="scheduledDownTime duration" class="custom-select mb-2 mr-sm-2 mb-sm-0" id="scheduledDownTime">
+              {% for time in wateringTimes %}
+                {% if time == scheduledDownTime.duration %}
+                  <option value="{{ time }}" selected="selected">{{ time }}</option>
+                {% else %}
+                  <option value="{{ time }}">{{ time }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-1">
+            <label class="text-white"></label>
+          </div>
+
+          <div class="col-3 col-sm-3 px-0 text-center">
+              <label class="px-0">Timer</label>
+            <!--label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label-->
+            <select name="scheduledDownTime timer" class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+             {% if scheduledDownTime.timer == 0 %}
+               <option value="0" selected="selected">None</option>
+             {% else %}
+               <option value="0">None</option>
+             {% endif %}
+             {% for timer in timerTable %}
+                {% if scheduledDownTime.timer == loop.index0+1 %}
+                  <option value="{{ loop.index0+1 }}" selected="selected">{{ scheduledDownTime.timer }}</option>
+                {% else %}
+                  <option value="{{ loop.index0+1 }}">{{ loop.index0+1 }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-1">
+            <label class="text-white"></label>
+          </div>
+
+          <div class="col-3">
+            <label for="saveButton2" class="text-white">hidden</label>
+            <button type="submit" value="save" name="settingButton" id="saveButton2" class="btn btn-outline-primary btn-block">save</button>
+          </div>
+
+        </div>  <!-- row -->
+
+      </div>  <!-- row -->
 
 
       </form>
