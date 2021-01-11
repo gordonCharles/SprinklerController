@@ -10,3 +10,6 @@
 /private.py
 /testPrivate.py
 /version_check.py
+templates/settings_bak.html
+sprinklerNVM_bak.pkl
+test.py
