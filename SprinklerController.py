@@ -755,7 +755,6 @@ def timerThread():
                 setRelays("automatically")
                 for zone in range(len(activeZones)): # Adjust starting time of any running zones
                     activeZones[zone] = (activeZones[zone][0], activeZones[zone][1] + 60 * scheduledDownTime['duration'])
-                zoneTable[zone]['on'] = True
                 downTime = True
         elif timeInSeconds > (downTimeStart + 60 * scheduledDownTime['duration']):
             if downTime == True:
