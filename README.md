@@ -98,7 +98,7 @@ wires as they enter/exit the case.
 
 Raspberry Pi
 ------------ 
-I would strongly encourage the use of a visual debugging suite.  The code was originally developed on my MacBook to the point where the GUI functioned.  If 
+I would strongly encourage the use of a visual debugging suite.  The code was originally developed on my MacBook Pro to the point where the GUI functioned.  If 
 you plan on modifying the GUI I would start in this model.  When I started developing on the Pi I ran VNC sessions, with PyCharm running locally on the pi.
 On a completely separate project (AI running jobs on AWS servers) I became aware of the power of Microsoft Visual Code.  I have never been a fan of Microsoft
 as they have regularly disappointed with how they have spent their R&D on the office suite, MS Project, and Windows; however, Microsoft Visual Code is so 
